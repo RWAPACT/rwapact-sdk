@@ -1,6 +1,5 @@
 # RWAPACT SDK (`@rwapact/sdk`)
 
-[![CI](https://github.com/RWAPACT/rwapact-sdk/actions/workflows/ci.yml/badge.svg)](https://github.com/RWAPACT/rwapact-sdk/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.6-blue.svg)](https://www.typescriptlang.org/)
 [![Robinhood Chain](https://img.shields.io/badge/Robinhood%20Chain-46630-3e5c1e.svg)](https://explorer.testnet.chain.robinhood.com)
