@@ -37,7 +37,7 @@ export const ROBINHOOD_CHAIN: ChainConfig = {
   blockExplorers: {
     default: {
       name: "Robinhood Chain Explorer",
-      url: "https://explorer.chain.robinhood.com",
+      url: "https://robinhoodchain.blockscout.com",
     },
   },
   testnet: false,
