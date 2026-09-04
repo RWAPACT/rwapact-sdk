@@ -148,11 +148,12 @@ The SDK provides built-in address mapping for tokenized equities deployed on Rob
 
 | Ticker | Asset Name | Contract Address | Market Hours Enforced |
 | :--- | :--- | :--- | :---: |
-| `TSLA` | Tesla Inc. Tokenized Equity | `0x1111111111111111111111111111111111111111` | Yes |
-| `AAPL` | Apple Inc. Tokenized Equity | `0x2222222222222222222222222222222222222222` | Yes |
-| `NVDA` | Nvidia Corp. Tokenized Equity | `0x3333333333333333333333333333333333333333` | Yes |
-| `AMZN` | Amazon.com Inc. Tokenized Equity | `0x4444444444444444444444444444444444444444` | Yes |
-| `GME` | GameStop Corp. Tokenized Equity | `0x9999999999999999999999999999999999999999` | Yes |
+| `TSLA` | Tesla Inc. Tokenized Equity | `0xcda03b5086e61ad88f2919e87166032cef6111e3` | Yes |
+| `AAPL` | Apple Inc. Tokenized Equity | `0x93a5296cdf52c3a885462f0e8067d4b6748be63a` | Yes |
+| `NVDA` | Nvidia Corp. Tokenized Equity | `0x91dd3c2015acd79a152b57f4e75b2ae8a38c5e65` | Yes |
+| `AMZN` | Amazon.com Inc. Tokenized Equity | `0x50c896caaadf2e26c2c961d37d688bed9fce61b9` | Yes |
+| `MSFT` | Microsoft Corp. Tokenized Equity | `0x2f6e8b7e90585ee563a0dcbcf8ce7bbffc6e5060` | Yes |
+| `GOOGL` | Alphabet Inc. Tokenized Equity | `0x4de1821d62db0302fbefe4d9bdc57e8fa591811a` | Yes |
 
 ---
 
