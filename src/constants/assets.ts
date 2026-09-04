@@ -28,25 +28,4 @@ export const SUPPORTED_ASSETS: Record<string, RWAAsset> = {
     decimals: 18,
     marketHoursOnly: true,
   },
-  AMZN: {
-    symbol: "AMZN",
-    name: "Amazon.com Inc. Tokenized Equity",
-    address: "0x50c896caaadf2e26c2c961d37d688bed9fce61b9",
-    decimals: 18,
-    marketHoursOnly: true,
-  },
-  MSFT: {
-    symbol: "MSFT",
-    name: "Microsoft Corp. Tokenized Equity",
-    address: "0x2f6e8b7e90585ee563a0dcbcf8ce7bbffc6e5060",
-    decimals: 18,
-    marketHoursOnly: true,
-  },
-  GOOGL: {
-    symbol: "GOOGL",
-    name: "Alphabet Inc. Tokenized Equity",
-    address: "0x4de1821d62db0302fbefe4d9bdc57e8fa591811a",
-    decimals: 18,
-    marketHoursOnly: true,
-  },
 };

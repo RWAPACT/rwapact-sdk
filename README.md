@@ -151,9 +151,6 @@ The SDK provides built-in address mapping for tokenized equities deployed on Rob
 | `TSLA` | Tesla Inc. Tokenized Equity | `0xc1a08259495557e39fde66c8c9b89eeb19fe5c48` | Yes |
 | `AAPL` | Apple Inc. Tokenized Equity | `0x5a85260e70a7545d47dfe937f529db3c2a6980ec` | Yes |
 | `NVDA` | Nvidia Corp. Tokenized Equity | `0x9714a2f59cacb3d4e57a1ea377099ea12af311bc` | Yes |
-| `AMZN` | Amazon.com Inc. Tokenized Equity | `0x50c896caaadf2e26c2c961d37d688bed9fce61b9` | Yes |
-| `MSFT` | Microsoft Corp. Tokenized Equity | `0x2f6e8b7e90585ee563a0dcbcf8ce7bbffc6e5060` | Yes |
-| `GOOGL` | Alphabet Inc. Tokenized Equity | `0x4de1821d62db0302fbefe4d9bdc57e8fa591811a` | Yes |
 
 ---
 
