@@ -1,12 +1,12 @@
 import { RWAPactClient } from "../src/client";
-import { ROBINHOOD_CHAIN_TESTNET } from "../src/constants/chains";
+import { ROBINHOOD_CHAIN } from "../src/constants/chains";
 import { DEFAULT_CONTRACTS } from "../src/constants/contracts";
 
 describe("RWAPactClient", () => {
   it("initializes with default Robinhood Chain configuration", () => {
     const client = new RWAPactClient();
     expect(client.publicClient).toBeDefined();
-    expect(client.publicClient.chain?.id).toBe(ROBINHOOD_CHAIN_TESTNET.id);
+    expect(client.publicClient.chain?.id).toBe(ROBINHOOD_CHAIN.id);
     expect(client.contracts.PactGate).toBe(DEFAULT_CONTRACTS.PactGate);
     expect(client.gate).toBeDefined();
     expect(client.session).toBeDefined();

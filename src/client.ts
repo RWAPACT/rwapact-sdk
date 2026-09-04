@@ -7,7 +7,7 @@ import {
   custom,
 } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
-import { ROBINHOOD_CHAIN_TESTNET } from "./constants/chains";
+import { ROBINHOOD_CHAIN, ROBINHOOD_CHAIN_TESTNET } from "./constants/chains";
 import { DEFAULT_CONTRACTS, ProtocolDeployment } from "./constants/contracts";
 import { GateModule } from "./modules/gate";
 import { SessionModule } from "./modules/session";
@@ -26,10 +26,11 @@ export class RWAPactClient {
   public readonly policy: PolicyModule;
 
   constructor(config: SDKConfig = {}) {
-    const rpcUrl = config.rpcUrl || ROBINHOOD_CHAIN_TESTNET.rpcUrls.default.http[0];
+    const defaultChain = config.chainId === 46630 ? ROBINHOOD_CHAIN_TESTNET : ROBINHOOD_CHAIN;
+    const rpcUrl = config.rpcUrl || defaultChain.rpcUrls.default.http[0];
     const chain = {
-      ...ROBINHOOD_CHAIN_TESTNET,
-      id: config.chainId || ROBINHOOD_CHAIN_TESTNET.id,
+      ...defaultChain,
+      id: config.chainId || defaultChain.id,
     };
 
     this.contracts = {

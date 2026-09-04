@@ -129,28 +129,28 @@ console.log("Is Attestation Valid:", isValid);
 
 ---
 
-## On-Chain Contract Deployments
+## On-Chain Contract Deployments (Robinhood Chain Mainnet - 4663)
 
-| Contract | Function | Robinhood Chain Testnet Address |
+| Contract | Function | Robinhood Chain Mainnet Address |
 | :--- | :--- | :--- |
-| **PactGate** | Main 5-Layer Risk Firewall | `0xd7f574d8ad33a74022f3655c8ea875c044b8edc3` |
-| **KAR_AttestationRegistry** | ERC-8273 Audit Receipts | `0x48a2f2d1bfc90590f4afa419c1ae204ce259c128` |
-| **KSO_SessionOracle** | ERC-8004 Agent Delegation | `0xd70b4cf568ff5c264c78314303ef0df9baf8344e` |
-| **KPV_PolicyVault** | Institutional Risk Rules | `0xe0f917181190aa032b3568639bd365bb5d2e871b` |
-| **KRO_RiskOracle** | Volatility & Slippage Engine | `0x942d6ee4a273d165e1c7cfca6b0032ba89a5e138` |
-| **KGR_GasRouter** | Gas Routing & Optimization | `0x3f63122df822cff9508e31aa6471e65834c37425` |
+| **PactGate** | Main 5-Layer Risk Firewall | `0xe834c22d9692655f2782bd3763b87d37f96c2a4a` |
+| **KAR_AttestationRegistry** | ERC-8273 Audit Receipts | `0x3762e27869aba5b961b40aca0f314c9c93547f4a` |
+| **KSO_SessionOracle** | ERC-8004 Agent Delegation | `0xbb81c96d0bc3bec1d503fde66ee2e31fbf7595f1` |
+| **KPV_PolicyVault** | Institutional Risk Rules | `0xa453c5f11f8bac06b137d7e7950dc17ce620e11b` |
+| **KRO_RiskOracle** | Volatility & Slippage Engine | `0x1b676a731171a1cc4c835e3cce8a9301f1114d0d` |
+| **KGR_GasRouter** | Gas Routing & Optimization | `0xd7b6c0c92ffb0508700ee49186406b5c27d852f3` |
 
 ---
 
 ## Supported RWA Assets
 
-The SDK provides built-in address mapping for tokenized equities deployed on Robinhood Chain:
+The SDK provides built-in address mapping for tokenized equities deployed on Robinhood Chain Mainnet:
 
 | Ticker | Asset Name | Contract Address | Market Hours Enforced |
 | :--- | :--- | :--- | :---: |
-| `TSLA` | Tesla Inc. Tokenized Equity | `0xcda03b5086e61ad88f2919e87166032cef6111e3` | Yes |
-| `AAPL` | Apple Inc. Tokenized Equity | `0x93a5296cdf52c3a885462f0e8067d4b6748be63a` | Yes |
-| `NVDA` | Nvidia Corp. Tokenized Equity | `0x91dd3c2015acd79a152b57f4e75b2ae8a38c5e65` | Yes |
+| `TSLA` | Tesla Inc. Tokenized Equity | `0xc1a08259495557e39fde66c8c9b89eeb19fe5c48` | Yes |
+| `AAPL` | Apple Inc. Tokenized Equity | `0x5a85260e70a7545d47dfe937f529db3c2a6980ec` | Yes |
+| `NVDA` | Nvidia Corp. Tokenized Equity | `0x9714a2f59cacb3d4e57a1ea377099ea12af311bc` | Yes |
 | `AMZN` | Amazon.com Inc. Tokenized Equity | `0x50c896caaadf2e26c2c961d37d688bed9fce61b9` | Yes |
 | `MSFT` | Microsoft Corp. Tokenized Equity | `0x2f6e8b7e90585ee563a0dcbcf8ce7bbffc6e5060` | Yes |
 | `GOOGL` | Alphabet Inc. Tokenized Equity | `0x4de1821d62db0302fbefe4d9bdc57e8fa591811a` | Yes |
