@@ -2,49 +2,49 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.6-blue.svg)](https://www.typescriptlang.org/)
-[![Robinhood Chain](https://img.shields.io/badge/Robinhood%20Chain-46630-3e5c1e.svg)](https://explorer.testnet.chain.robinhood.com)
+[![Robinhood Chain Mainnet](https://img.shields.io/badge/Robinhood%20Chain%20Mainnet-4663-3e5c1e.svg)](https://rh-scan.com)
+[![Tests Passing](https://img.shields.io/badge/Tests-Passing-success.svg)](https://github.com/RWAPACT/rwapact-sdk)
 
-The official TypeScript/JavaScript SDK for **RWAPACT**: The On-Chain Policy & Risk Firewall for Autonomous AI Agents Trading Real-World Assets (RWA).
+Official TypeScript/JavaScript SDK for **RWAPACT**: an on-chain risk evaluation and session delegation protocol on Robinhood Chain Mainnet (Chain ID `4663`).
 
-> *"RWAPACT does not execute trades. RWAPACT decides whether a trade should execute."*
+The SDK provides client libraries and utility methods to interact with RWAPACT smart contracts, evaluate trade orders against risk policies, manage ERC-8004 agent sessions, and verify ERC-8273 on-chain attestation receipts.
 
 ---
 
-## Architecture Overview
+## Core Protocol Architecture
 
-RWAPACT sits directly between AI Agent frameworks (ElizaOS, LangChain, AutoGPT) and execution venues (DEXs, Tokenized Equity Pools). Every trade intent formulated by an autonomous agent is cryptographically intercepted and evaluated across a 5-layer risk gate before any capital can move on-chain:
+RWAPACT provides a pre-trade validation layer that evaluates trade orders against configurable risk constraints before execution:
 
 ```
-[ Autonomous AI Agent ]
-        │ (Trade Intent)
-        ▼
+[ AI Agent / Trader Order ]
+            │ (Order Intent)
+            ▼
 ┌─────────────────────────────────────────────────────────────┐
 │                    RWAPACT 5-LAYER GATE                     │
 │                                                             │
-│  [1] KPV  Policy Vault         (Allowlists, Max Size, Caps) │
-│  [2] KSO  Session Oracle       (ERC-8004 Timed Delegation)  │
-│  [3] KRO  Risk Oracle          (Volatility, Slippage Bps)   │
-│  [4] KGR  Gas Router           (Predictable Fee Routing)    │
-│  [5] KAR  Attestation Registry (ERC-8273 Audit Receipt)     │
+│  [1] KPV (Policy Vault)         - Caps, whitelists, limits  │
+│  [2] KSO (Session Oracle)       - ERC-8004 timed delegation │
+│  [3] KRO (Risk Oracle)          - Slippage & market hours   │
+│  [4] KGR (Gas Router)           - Network gas threshold     │
+│  [5] KAR (Attestation Registry) - ERC-8273 audit receipts   │
 └──────────────────────────────┬──────────────────────────────┘
                                │
-               ┌───────────────┴───────────────┐
-               ▼                               ▼
-         [ APPROVED ]                     [ BLOCKED ]
-       Attestation Minted              Execution Reverted
-     Routed to Execution Pool         Non-compliant Trade Logged
+                ┌──────────────┴──────────────┐
+                ▼                             ▼
+          [ APPROVED ]                   [ BLOCKED ]
+       Attestation Logged             Transaction Reverted
+     Eligible for Execution         Violation Code Recorded
 ```
 
 ---
 
-## Features
+## Key Capabilities
 
-- **PactGate Enforcement**: Evaluate trade intents against institutional risk parameters with zero latency.
-- **ERC-8004 Agent Delegation**: Create scoped, time-bound, and budget-capped on-chain sessions for autonomous trading agents.
-- **ERC-8273 Risk Attestations**: Verify cryptographic audit receipts minted on-chain for regulatory and post-trade compliance.
-- **Robinhood Chain Native**: Preconfigured with official smart contract addresses, ABIs, and RPC endpoints for Robinhood Chain Testnet (`46630`).
-- **Universal Provider Support**: Supports node-based private keys, Viem clients, or browser-injected Web3 providers.
-- **Type-Safe**: 100% strict TypeScript types with full autocompletion for ABIs, events, and contract calls.
+- **PactGate Evaluation**: Dry-run or execute on-chain order verification against the deployed `PactGate` contract.
+- **Session Delegation (ERC-8004)**: Create and revoke time-bounded, budget-capped on-chain sessions for automated trading agents.
+- **Attestation Verification (ERC-8273)**: Query verified attestation receipts minted to `KAR_AttestationRegistry`.
+- **Preconfigured Chain Metadata**: Built-in support for Robinhood Chain Mainnet (`4663`) and Testnet (`46630`) with verified RPCs and block explorer links (`rh-scan.com`).
+- **Strict TypeScript Types**: Full typing for order intents, contract ABIs, policy parameters, and simulation responses.
 
 ---
 
@@ -67,40 +67,39 @@ pnpm add @rwapact/sdk viem
 ```typescript
 import { RWAPactClient } from "@rwapact/sdk";
 
-// Read-only client connected to Robinhood Chain Testnet
+// Read-only client connected to Robinhood Chain Mainnet (Chain ID 4663)
 const client = new RWAPactClient();
 
-// Or configure with a private key for on-chain execution
+// Signer client for on-chain transactions
 const signerClient = new RWAPactClient({
+  chainId: 4663,
   privateKey: "0x...", // Your account private key
 });
 ```
 
-### 2. Evaluate an Agent Trade Intent
+### 2. Evaluate a Trade Order Intent
 
-Before sending a transaction, simulate and evaluate whether the order passes institutional risk controls:
+Simulate whether an order intent satisfies risk rules before broadcasting:
 
 ```typescript
 const decision = await client.evaluate({
   agentId: "agent_quant_alpha",
   sessionId: "sess_rh_rwa_001",
-  asset: "TSLA", // Tokenized Tesla Equity
+  asset: "TSLA", // Resolves to 0xc1a08259495557e39fde66c8c9b89eeb19fe5c48
   tradeAmountUSD: 450,
   isMarketOpen: true,
   estimatedSlippageBps: 150, // 1.50%
 });
 
 if (decision.canTrade) {
-  console.log("Order Approved! Risk Score:", decision.riskScore);
-  console.log("Attestation Receipt ID:", decision.attestationId);
+  console.log("Trade Approved! Risk Score:", decision.riskScore);
+  console.log("Attestation Hash:", decision.attestationId);
 } else {
-  console.warn("Order Blocked:", decision.rejectReason);
+  console.warn("Trade Blocked:", decision.rejectReason);
 }
 ```
 
-### 3. Delegate an On-Chain Session (ERC-8004)
-
-Grant an AI agent bounded authority to trade within strict budget, duration, and asset boundaries:
+### 3. Create an On-Chain Delegated Session (ERC-8004)
 
 ```typescript
 const { sessionId, txHash } = await signerClient.createSession({
@@ -111,17 +110,15 @@ const { sessionId, txHash } = await signerClient.createSession({
   maxTradeSizeUSD: 500,
 });
 
-console.log("Session Created on-chain:", sessionId);
+console.log("Session Created:", sessionId);
 console.log("Transaction Hash:", txHash);
 ```
 
 ### 4. Verify an Attestation Receipt (ERC-8273)
 
-Verify on-chain whether a specific trade attestation was cryptographically registered by `PactGate`:
-
 ```typescript
 const isValid = await client.verifyAttestation(
-  "0x48a2f2d1bfc90590f4afa419c1ae204ce259c128000000000000000000000000"
+  "0x3762e27869aba5b961b40aca0f314c9c93547f4a000000000000000000000000"
 );
 
 console.log("Is Attestation Valid:", isValid);
@@ -129,60 +126,57 @@ console.log("Is Attestation Valid:", isValid);
 
 ---
 
-## On-Chain Contract Deployments (Robinhood Chain Mainnet - 4663)
+## Verified On-Chain Deployments
 
-| Contract | Function | Robinhood Chain Mainnet Address |
+All contracts are deployed and verified on **Robinhood Chain Mainnet (Chain ID `4663`)**:
+
+| Contract | Role | Verified Explorer Link |
 | :--- | :--- | :--- |
-| **PactGate** | Main 5-Layer Risk Firewall | `0xe834c22d9692655f2782bd3763b87d37f96c2a4a` |
-| **KAR_AttestationRegistry** | ERC-8273 Audit Receipts | `0x3762e27869aba5b961b40aca0f314c9c93547f4a` |
-| **KSO_SessionOracle** | ERC-8004 Agent Delegation | `0xbb81c96d0bc3bec1d503fde66ee2e31fbf7595f1` |
-| **KPV_PolicyVault** | Institutional Risk Rules | `0xa453c5f11f8bac06b137d7e7950dc17ce620e11b` |
-| **KRO_RiskOracle** | Volatility & Slippage Engine | `0x1b676a731171a1cc4c835e3cce8a9301f1114d0d` |
-| **KGR_GasRouter** | Gas Routing & Optimization | `0xd7b6c0c92ffb0508700ee49186406b5c27d852f3` |
+| **PactGate** | Multi-layer execution & risk gate | [`0xe834c22d...2a4a`](https://rh-scan.com/address/0xe834c22d9692655f2782bd3763b87d37f96c2a4a) |
+| **KAR_AttestationRegistry** | ERC-8273 Attestation log storage | [`0x3762e278...7f4a`](https://rh-scan.com/address/0x3762e27869aba5b961b40aca0f314c9c93547f4a) |
+| **KSO_SessionOracle** | ERC-8004 Session delegation oracle | [`0xbb81c96d...59f1`](https://rh-scan.com/address/0xbb81c96d0bc3bec1d503fde66ee2e31fbf7595f1) |
+| **KPV_PolicyVault** | Policy limits & asset allowlist | [`0xa453c5f1...e11b`](https://rh-scan.com/address/0xa453c5f11f8bac06b137d7e7950dc17ce620e11b) |
+| **KRO_RiskOracle** | Price feed freshness & risk metrics | [`0x1b676a73...140d`](https://rh-scan.com/address/0x1b676a731171a1cc4c835e3cce8a9301f1114d0d) |
+| **KGR_GasRouter** | Gas evaluation and fee thresholds | [`0xd7b6c0c9...52f3`](https://rh-scan.com/address/0xd7b6c0c92ffb0508700ee49186406b5c27d852f3) |
+
+### Verified Token Contracts
+
+| Token | Name | Verified Explorer Link |
+| :--- | :--- | :--- |
+| **$RWAPACT** | Protocol Ecosystem Token | [`0x4b1b3CB2...CD65`](https://rh-scan.com/address/0x4b1b3CB23e1cd1eB03eFf3123B6Ccd698629CD65) ([DexScreener](https://dexscreener.com/robinhood/0xce9d08bdd1d984988bfb05a3188c573cf945d14255606e862227577b3a901576)) |
+| **TSLA** | Tesla Inc. Tokenized Equity | [`0xc1a08259...5c48`](https://rh-scan.com/address/0xc1a08259495557e39fde66c8c9b89eeb19fe5c48) |
+| **AAPL** | Apple Inc. Tokenized Equity | [`0x5a85260e...80ec`](https://rh-scan.com/address/0x5a85260e70a7545d47dfe937f529db3c2a6980ec) |
+| **NVDA** | NVIDIA Corp. Tokenized Equity | [`0x9714a2f5...11bc`](https://rh-scan.com/address/0x9714a2f59cacb3d4e57a1ea377099ea12af311bc) |
 
 ---
 
-## Supported RWA Assets
+## Code Examples
 
-The SDK provides built-in address mapping for tokenized equities deployed on Robinhood Chain Mainnet:
+Practical, runnable examples are included in the [`examples/`](./examples) directory:
 
-| Ticker | Asset Name | Contract Address | Market Hours Enforced |
-| :--- | :--- | :--- | :---: |
-| `TSLA` | Tesla Inc. Tokenized Equity | `0xc1a08259495557e39fde66c8c9b89eeb19fe5c48` | Yes |
-| `AAPL` | Apple Inc. Tokenized Equity | `0x5a85260e70a7545d47dfe937f529db3c2a6980ec` | Yes |
-| `NVDA` | Nvidia Corp. Tokenized Equity | `0x9714a2f59cacb3d4e57a1ea377099ea12af311bc` | Yes |
+1. [`01-basic-evaluation.ts`](./examples/01-basic-evaluation.ts) - Initializing the client and evaluating trade intents against PactGate.
+2. [`02-create-delegated-session.ts`](./examples/02-create-delegated-session.ts) - Creating an on-chain scoped session delegation.
+3. [`03-verify-attestation.ts`](./examples/03-verify-attestation.ts) - Reading and validating attestation receipts from KAR.
+4. [`04-portfolio-rebalance.ts`](./examples/04-portfolio-rebalance.ts) - Evaluating portfolio drift and formulating rebalance orders.
 
 ---
 
-## API Reference
+## Running Tests
 
-### `RWAPactClient`
-The primary SDK client coordinating all submodules:
-- `client.gate`: `GateModule` for trade evaluation and on-chain enforcement.
-- `client.session`: `SessionModule` for managing ERC-8004 delegated agent sessions.
-- `client.attestation`: `AttestationModule` for querying and verifying ERC-8273 cryptographic audit proofs.
-- `client.policy`: `PolicyModule` for inspecting asset whitelist and position limits.
+```bash
+npm test
+```
 
-### Low-Level Utilities
-Exported from `@rwapact/sdk/utils`:
-- `stringToBytes32(text: string): Hex`: Convert identifiers to standard `bytes32`.
-- `bytes32ToString(hex: Hex): string`: Decode on-chain `bytes32` strings.
-- `resolveAssetAddress(asset: string | Address): Address`: Resolve ticker symbols or checksummed addresses.
+Unit tests cover client initialization, chain configuration integrity, parameter validation, asset resolution, and ABI encoding.
 
 ---
 
 ## Security
 
-Security is foundational to RWAPACT. To report vulnerabilities or review our bug bounty program, please consult [SECURITY.md](./SECURITY.md).
-
----
-
-## Community & Contributing
-
-Contributions are welcome! Please read our [CONTRIBUTING.md](./CONTRIBUTING.md) and [CODE_OF_CONDUCT.md](./CODE_OF_CONDUCT.md) before submitting pull requests.
+For vulnerability disclosures and reporting procedures, refer to [SECURITY.md](./SECURITY.md).
 
 ---
 
 ## License
 
-This project is licensed under the [MIT License](./LICENSE).
+MIT License. See [LICENSE](./LICENSE) for details.
