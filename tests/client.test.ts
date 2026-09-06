@@ -56,5 +56,54 @@ describe("RWAPactClient", () => {
     expect(decision).toHaveProperty("riskScore");
     expect(decision).toHaveProperty("rejectReason");
     expect(typeof decision.riskScore).toBe("number");
+    expect(decision.canTrade).toBe(true);
+  });
+
+  it("safely enforces policy caps on large BigInt orders without overflow", async () => {
+    const client = new RWAPactClient();
+    const decision = await client.evaluate({
+      agentId: "agent_quant_01",
+      sessionId: "sess_rh_001",
+      asset: "TSLA",
+      tradeAmountUSD: 10_000n,
+      isMarketOpen: true,
+      estimatedSlippageBps: 150n,
+    });
+
+    expect(decision.canTrade).toBe(false);
+    expect(decision.rejectReason).toContain("Exceeds policy single-order cap");
+    expect(decision.riskScore).toBe(80);
+  });
+
+  it("safely rejects orders when market is closed", async () => {
+    const client = new RWAPactClient();
+    const decision = await client.evaluate({
+      agentId: "agent_quant_01",
+      sessionId: "sess_rh_001",
+      asset: "AAPL",
+      tradeAmountUSD: 200,
+      isMarketOpen: false,
+      estimatedSlippageBps: 100,
+    });
+
+    expect(decision.canTrade).toBe(false);
+    expect(decision.rejectReason).toContain("Market is closed");
+    expect(decision.riskScore).toBe(85);
+  });
+
+  it("safely rejects orders when slippage exceeds tolerance ceiling", async () => {
+    const client = new RWAPactClient();
+    const decision = await client.evaluate({
+      agentId: "agent_quant_01",
+      sessionId: "sess_rh_001",
+      asset: "NVDA",
+      tradeAmountUSD: 500,
+      isMarketOpen: true,
+      estimatedSlippageBps: 350n,
+    });
+
+    expect(decision.canTrade).toBe(false);
+    expect(decision.rejectReason).toContain("Slippage exceeds");
+    expect(decision.riskScore).toBe(75);
   });
 });

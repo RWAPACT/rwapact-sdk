@@ -66,10 +66,15 @@ export class GateModule {
         gasRoute: result.gasRoute,
       };
     } catch {
-      // Offline fallback heuristic calculation if node is unreachable
-      const amount = Number(order.tradeAmountUSD);
+      // Safe offline fallback heuristic calculation with native BigInt precision if node is unreachable
+      const maxOrderCapUSD = 1500n;
+      const tradeAmount = typeof order.tradeAmountUSD === "bigint"
+        ? order.tradeAmountUSD
+        : BigInt(order.tradeAmountUSD);
       const isMarketOpen = order.isMarketOpen ?? true;
-      const slippage = Number(order.estimatedSlippageBps ?? 150);
+      const slippage = typeof order.estimatedSlippageBps === "bigint"
+        ? order.estimatedSlippageBps
+        : BigInt(order.estimatedSlippageBps ?? 150);
 
       let canTrade = true;
       let rejectReason = "Passed 5-Layer Risk Gate";
@@ -79,11 +84,11 @@ export class GateModule {
         canTrade = false;
         rejectReason = "Rejected: US Equity Market is closed";
         riskScore = 85;
-      } else if (amount > 1500) {
+      } else if (tradeAmount > maxOrderCapUSD) {
         canTrade = false;
         rejectReason = "Rejected: Exceeds policy single-order cap ($1,500)";
         riskScore = 80;
-      } else if (slippage > 300) {
+      } else if (slippage > 300n) {
         canTrade = false;
         rejectReason = "Rejected: Slippage exceeds 3.00% ceiling";
         riskScore = 75;
