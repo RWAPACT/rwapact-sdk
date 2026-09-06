@@ -1,6 +1,6 @@
 {
   "name": "@rwapact/sdk",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Official TypeScript/JavaScript SDK for RWAPACT: The On-Chain Policy & Risk Firewall for Autonomous AI Agents Trading Real-World Assets",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",

@@ -2,10 +2,17 @@ import { SUPPORTED_ASSETS } from "../src/constants/assets";
 import { resolveAssetAddress } from "../src/utils/formatting";
 
 describe("Supported RWA Assets", () => {
-  it("should contain the 3 verified Mainnet stock tokens: TSLA, AAPL, NVDA", () => {
+  it("should contain the verified Mainnet Robinhood tokenized assets", () => {
     expect(SUPPORTED_ASSETS.TSLA).toBeDefined();
     expect(SUPPORTED_ASSETS.AAPL).toBeDefined();
     expect(SUPPORTED_ASSETS.NVDA).toBeDefined();
+    expect(SUPPORTED_ASSETS.SPY).toBeDefined();
+    expect(SUPPORTED_ASSETS.QQQ).toBeDefined();
+    expect(SUPPORTED_ASSETS.AMZN).toBeDefined();
+    expect(SUPPORTED_ASSETS.GOOGL).toBeDefined();
+    expect(SUPPORTED_ASSETS.MSFT).toBeDefined();
+    expect(SUPPORTED_ASSETS.META).toBeDefined();
+    expect(SUPPORTED_ASSETS.COIN).toBeDefined();
   });
 
   it("should have valid checksummed contract addresses and 18 decimals", () => {

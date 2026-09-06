@@ -144,9 +144,16 @@ All contracts are deployed and verified on **Robinhood Chain Mainnet (Chain ID `
 | Token | Name | Verified Explorer Link |
 | :--- | :--- | :--- |
 | **$RWAPACT** | Protocol Ecosystem Token | [`0x4b1b3CB2...CD65`](https://rh-scan.com/address/0x4b1b3CB23e1cd1eB03eFf3123B6Ccd698629CD65) ([DexScreener](https://dexscreener.com/robinhood/0xce9d08bdd1d984988bfb05a3188c573cf945d14255606e862227577b3a901576)) |
-| **TSLA** | Tesla Inc. Tokenized Equity | [`0xc1a08259...5c48`](https://rh-scan.com/address/0xc1a08259495557e39fde66c8c9b89eeb19fe5c48) |
-| **AAPL** | Apple Inc. Tokenized Equity | [`0x5a85260e...80ec`](https://rh-scan.com/address/0x5a85260e70a7545d47dfe937f529db3c2a6980ec) |
-| **NVDA** | NVIDIA Corp. Tokenized Equity | [`0x9714a2f5...11bc`](https://rh-scan.com/address/0x9714a2f59cacb3d4e57a1ea377099ea12af311bc) |
+| **TSLA** | Tesla • Robinhood Token | [`0x322f0929...3b2d`](https://rh-scan.com/token/0x322f0929c4625ed5bad873c95208d54e1c003b2d) |
+| **AAPL** | Apple • Robinhood Token | [`0xaf3d76f1...93f9`](https://rh-scan.com/token/0xaf3d76f1834a1d425780943c99ea8a608f8a93f9) |
+| **NVDA** | NVIDIA • Robinhood Token | [`0xd0601ce1...9eec`](https://rh-scan.com/token/0xd0601ce157db5bdc3162bbac2a2c8af5320d9eec) |
+| **SPY** | SPDR S&P 500 ETF • Robinhood Token | [`0x117cc213...4c0c`](https://rh-scan.com/token/0x117cc2133c37b721f49de2a7a74833232b3b4c0c) |
+| **QQQ** | Invesco QQQ • Robinhood Token | [`0xd5f38791...de68`](https://rh-scan.com/token/0xd5f3879160bc7c32ebb4dc785f8a4f505888de68) |
+| **AMZN** | Amazon.com • Robinhood Token | [`0x12f190a9...bf54`](https://rh-scan.com/token/0x12f190a9f9d7d37a250758b26824b97ce941bf54) |
+| **GOOGL** | Alphabet Class A • Robinhood Token | [`0x2e0847e8...4fe3`](https://rh-scan.com/token/0x2e0847e8910a9732eb3fb1bb4b70a580adad4fe3) |
+| **MSFT** | Microsoft • Robinhood Token | [`0xe93237c5...2e74`](https://rh-scan.com/token/0xe93237c50d904957cf27e7b1133b510c669c2e74) |
+| **META** | Meta Platforms • Robinhood Token | [`0xc0d6457c...2f35`](https://rh-scan.com/token/0xc0d6457c16cc70d6790dd43521c899c87ce02f35) |
+| **COIN** | Coinbase • Robinhood Token | [`0x6330d8c3...450b`](https://rh-scan.com/token/0x6330d8c3178a418788df01a47479c0ce7ccf450b) |
 
 ---
 
