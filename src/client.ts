@@ -57,7 +57,7 @@ export class RWAPactClient {
       });
     }
 
-    this.gate = new GateModule(this.publicClient, this.walletClient, this.contracts.PactGate);
+    this.gate = new GateModule(this.publicClient, this.walletClient, this.contracts.PactGate, this.contracts.KPV_PolicyVault);
     this.session = new SessionModule(this.publicClient, this.walletClient, this.contracts.KSO_SessionOracle);
     this.attestation = new AttestationModule(this.publicClient, this.contracts.KAR_AttestationRegistry);
     this.policy = new PolicyModule(this.publicClient, this.contracts.KPV_PolicyVault);

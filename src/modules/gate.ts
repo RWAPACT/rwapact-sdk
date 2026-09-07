@@ -1,5 +1,6 @@
 import { PublicClient, WalletClient, encodeFunctionData } from "viem";
 import { PACT_GATE_ABI } from "../abi/PactGate";
+import { KPV_POLICY_VAULT_ABI } from "../abi/KPV_PolicyVault";
 import { OrderIntent, PactDecision, Address, Hash } from "../types";
 import { stringToBytes32, resolveAssetAddress } from "../utils/formatting";
 import { validateOrderIntent } from "../utils/validation";
@@ -8,7 +9,8 @@ export class GateModule {
   constructor(
     private readonly client: PublicClient,
     private readonly walletClient: WalletClient | null,
-    private readonly contractAddress: Address
+    private readonly contractAddress: Address,
+    private readonly policyVaultAddress?: Address
   ) {}
 
   /**
@@ -61,7 +63,7 @@ export class GateModule {
       // Fall back to offline heuristic when the on-chain policy vault has no
       // policy configured for the given asset (returns POLICY_NOT_FOUND).
       if (result.rejectReason?.includes("POLICY_NOT_FOUND")) {
-        return this.offlineHeuristic(order);
+        return this.offlineHeuristic(order, assetAddress);
       }
 
       return {
@@ -73,17 +75,48 @@ export class GateModule {
       };
     } catch {
       // Safe offline fallback heuristic calculation with native BigInt precision if node is unreachable
-      return this.offlineHeuristic(order);
+      return this.offlineHeuristic(order, assetAddress);
     }
+  }
+
+  /**
+   * Attempts to read the on-chain policy for the asset to use the real cap.
+   * Returns undefined if the policy vault address is not configured or the
+   * read fails (e.g. node unreachable or no policy stored for the asset).
+   */
+  private async tryReadOnChainPolicy(assetAddress: Address): Promise<{ maxOrderUSD: bigint } | undefined> {
+    if (!this.policyVaultAddress) return undefined;
+    try {
+      const policy = await this.client.readContract({
+        address: this.policyVaultAddress,
+        abi: KPV_POLICY_VAULT_ABI,
+        functionName: "getAssetPolicy",
+        args: [assetAddress],
+      });
+      if (policy.isWhitelisted && policy.maxOrderUSD > 0n) {
+        return { maxOrderUSD: policy.maxOrderUSD };
+      }
+    } catch {
+      // fall through to default cap
+    }
+    return undefined;
   }
 
   /**
    * Pure off-chain heuristic evaluation with native BigInt precision.
    * Used as a fallback when the on-chain node is unreachable or the policy
    * vault has no policy configured for the requested asset.
+   *
+   * Collects all violation reasons instead of returning only the first one,
+   * so the caller knows every constraint that was breached.
    */
-  private offlineHeuristic(order: OrderIntent): PactDecision {
-    const maxOrderCapUSD = 1500n;
+  private async offlineHeuristic(order: OrderIntent, assetAddress: Address): Promise<PactDecision> {
+    const DEFAULT_MAX_ORDER_CAP_USD = 1500n;
+    const DEFAULT_MAX_SLIPPAGE_BPS = 300n;
+
+    const onChainPolicy = await this.tryReadOnChainPolicy(assetAddress);
+    const maxOrderCapUSD = onChainPolicy?.maxOrderUSD ?? DEFAULT_MAX_ORDER_CAP_USD;
+
     const tradeAmount = typeof order.tradeAmountUSD === "bigint"
       ? order.tradeAmountUSD
       : BigInt(order.tradeAmountUSD);
@@ -92,23 +125,26 @@ export class GateModule {
       ? order.estimatedSlippageBps
       : BigInt(order.estimatedSlippageBps ?? 150);
 
-    let canTrade = true;
-    let rejectReason = "Passed 5-Layer Risk Gate";
+    const violations: string[] = [];
     let riskScore = 15;
 
     if (!isMarketOpen) {
-      canTrade = false;
-      rejectReason = "Rejected: US Equity Market is closed";
-      riskScore = 85;
-    } else if (tradeAmount > maxOrderCapUSD) {
-      canTrade = false;
-      rejectReason = "Rejected: Exceeds policy single-order cap ($1,500)";
-      riskScore = 80;
-    } else if (slippage > 300n) {
-      canTrade = false;
-      rejectReason = "Rejected: Slippage exceeds 3.00% ceiling";
-      riskScore = 75;
+      violations.push("US Equity Market is closed");
+      riskScore = Math.max(riskScore, 85);
     }
+    if (tradeAmount > maxOrderCapUSD) {
+      violations.push(`Exceeds policy single-order cap ($${Number(maxOrderCapUSD).toLocaleString()})`);
+      riskScore = Math.max(riskScore, 80);
+    }
+    if (slippage > DEFAULT_MAX_SLIPPAGE_BPS) {
+      violations.push("Slippage exceeds 3.00% ceiling");
+      riskScore = Math.max(riskScore, 75);
+    }
+
+    const canTrade = violations.length === 0;
+    const rejectReason = canTrade
+      ? "Passed 5-Layer Risk Gate"
+      : `Rejected: ${violations.join("; ")}`;
 
     return {
       canTrade,
@@ -121,6 +157,7 @@ export class GateModule {
 
   /**
    * Submits an on-chain evaluateAndEnforce transaction using the connected wallet.
+   * Waits for the transaction receipt and throws if the transaction reverts.
    */
   public async execute(order: OrderIntent): Promise<PactDecision> {
     if (!this.walletClient || !this.walletClient.account) {
@@ -136,6 +173,12 @@ export class GateModule {
       data,
       chain: this.walletClient.chain,
     });
+
+    const receipt = await this.client.waitForTransactionReceipt({ hash: txHash });
+
+    if (receipt.status === "reverted") {
+      throw new Error(`On-chain evaluateAndEnforce transaction reverted. Tx hash: ${txHash}`);
+    }
 
     return {
       ...dryRunResult,
