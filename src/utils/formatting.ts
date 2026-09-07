@@ -1,4 +1,4 @@
-import { stringToHex, padHex, hexToString, trim } from "viem";
+import { stringToHex, padHex, hexToString, trim, isAddress } from "viem";
 import { SUPPORTED_ASSETS } from "../constants/assets";
 import { Address, Hex } from "../types";
 
@@ -27,6 +27,9 @@ export function bytes32ToString(hex: Hex): string {
  */
 export function resolveAssetAddress(asset: string | Address): Address {
   if (asset.startsWith("0x")) {
+    if (!isAddress(asset)) {
+      throw new Error(`Invalid address: "${asset}" is not a valid 20-byte Ethereum address.`);
+    }
     return asset as Address;
   }
   const upper = asset.toUpperCase();

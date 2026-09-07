@@ -14,6 +14,12 @@ export function validateOrderIntent(order: OrderIntent): void {
   if (amount <= 0n) {
     throw new Error("Invalid OrderIntent: 'tradeAmountUSD' must be greater than 0.");
   }
+  if (order.estimatedSlippageBps !== undefined) {
+    const slippage = BigInt(order.estimatedSlippageBps);
+    if (slippage < 0n) {
+      throw new Error("Invalid OrderIntent: 'estimatedSlippageBps' cannot be negative.");
+    }
+  }
 }
 
 export function validateSessionConfig(config: SessionConfig): void {

@@ -85,7 +85,7 @@ Simulate whether an order intent satisfies risk rules before broadcasting:
 const decision = await client.evaluate({
   agentId: "agent_quant_alpha",
   sessionId: "sess_rh_rwa_001",
-  asset: "TSLA", // Resolves to 0xc1a08259495557e39fde66c8c9b89eeb19fe5c48
+  asset: "TSLA", // Resolves to 0x322f0929c4625ed5bad873c95208d54e1c003b2d
   tradeAmountUSD: 450,
   isMarketOpen: true,
   estimatedSlippageBps: 150, // 1.50%

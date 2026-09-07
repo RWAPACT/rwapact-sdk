@@ -42,8 +42,26 @@ export class SessionModule {
       throw new Error("Cannot create session: No wallet client or account configured.");
     }
 
-    const sessionIdBytes = config.sessionId ? stringToBytes32(config.sessionId) : stringToBytes32(`sess_${Date.now()}`);
-    const data = this.encodeCreateSessionCall({ ...config, sessionId: config.sessionId || sessionIdBytes });
+    validateSessionConfig(config);
+
+    const sessionIdBytes = config.sessionId
+      ? stringToBytes32(config.sessionId)
+      : stringToBytes32(`sess_${Date.now()}`);
+    const agentIdBytes = stringToBytes32(config.agentId);
+    const assetAddress = resolveAssetAddress(config.allowedAsset);
+
+    const data = encodeFunctionData({
+      abi: KSO_SESSION_ORACLE_ABI,
+      functionName: "createSession",
+      args: [
+        sessionIdBytes,
+        agentIdBytes,
+        BigInt(config.durationSeconds),
+        BigInt(config.budgetUSD),
+        assetAddress,
+        BigInt(config.maxTradeSizeUSD),
+      ],
+    });
 
     const txHash = await this.walletClient.sendTransaction({
       account: this.walletClient.account,

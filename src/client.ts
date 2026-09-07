@@ -13,7 +13,7 @@ import { GateModule } from "./modules/gate";
 import { SessionModule } from "./modules/session";
 import { AttestationModule } from "./modules/attestation";
 import { PolicyModule } from "./modules/policy";
-import { SDKConfig, OrderIntent, PactDecision, SessionConfig } from "./types";
+import { SDKConfig, OrderIntent, PactDecision, SessionConfig, EIP1193Provider } from "./types";
 
 export class RWAPactClient {
   public readonly publicClient: PublicClient;
@@ -50,9 +50,14 @@ export class RWAPactClient {
         chain,
         transport: http(rpcUrl),
       });
+    } else if (config.provider) {
+      this.walletClient = createWalletClient({
+        chain,
+        transport: custom(config.provider),
+      });
     }
 
-    this.gate = new GateModule(this.publicClient, this.walletClient, this.contracts.PactGate);
+    this.gate = new GateModule(this.publicClient, this.walletClient, this.contracts.PactGate, this.contracts.KPV_PolicyVault);
     this.session = new SessionModule(this.publicClient, this.walletClient, this.contracts.KSO_SessionOracle);
     this.attestation = new AttestationModule(this.publicClient, this.contracts.KAR_AttestationRegistry);
     this.policy = new PolicyModule(this.publicClient, this.contracts.KPV_PolicyVault);
@@ -61,18 +66,8 @@ export class RWAPactClient {
   /**
    * Initializes client with a browser-injected EIP-1193 Web3 provider.
    */
-  public static fromProvider(provider: any, config: Omit<SDKConfig, "privateKey"> = {}): RWAPactClient {
-    const client = new RWAPactClient(config);
-    const walletClient = createWalletClient({
-      chain: ROBINHOOD_CHAIN_TESTNET,
-      transport: custom(provider),
-    });
-
-    (client as any).walletClient = walletClient;
-    (client as any).gate = new GateModule(client.publicClient, walletClient, client.contracts.PactGate);
-    (client as any).session = new SessionModule(client.publicClient, walletClient, client.contracts.KSO_SessionOracle);
-
-    return client;
+  public static fromProvider(provider: EIP1193Provider, config: Omit<SDKConfig, "privateKey" | "provider"> = {}): RWAPactClient {
+    return new RWAPactClient({ ...config, provider });
   }
 
   /**
