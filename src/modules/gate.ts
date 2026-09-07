@@ -58,6 +58,12 @@ export class GateModule {
         args: [tupleOrder],
       });
 
+      // Fall back to offline heuristic when the on-chain policy vault has no
+      // policy configured for the given asset (returns POLICY_NOT_FOUND).
+      if (result.rejectReason?.includes("POLICY_NOT_FOUND")) {
+        return this.offlineHeuristic(order);
+      }
+
       return {
         canTrade: result.canTrade,
         attestationId: result.attestationId as Hash,
@@ -67,41 +73,50 @@ export class GateModule {
       };
     } catch {
       // Safe offline fallback heuristic calculation with native BigInt precision if node is unreachable
-      const maxOrderCapUSD = 1500n;
-      const tradeAmount = typeof order.tradeAmountUSD === "bigint"
-        ? order.tradeAmountUSD
-        : BigInt(order.tradeAmountUSD);
-      const isMarketOpen = order.isMarketOpen ?? true;
-      const slippage = typeof order.estimatedSlippageBps === "bigint"
-        ? order.estimatedSlippageBps
-        : BigInt(order.estimatedSlippageBps ?? 150);
-
-      let canTrade = true;
-      let rejectReason = "Passed 5-Layer Risk Gate";
-      let riskScore = 15;
-
-      if (!isMarketOpen) {
-        canTrade = false;
-        rejectReason = "Rejected: US Equity Market is closed";
-        riskScore = 85;
-      } else if (tradeAmount > maxOrderCapUSD) {
-        canTrade = false;
-        rejectReason = "Rejected: Exceeds policy single-order cap ($1,500)";
-        riskScore = 80;
-      } else if (slippage > 300n) {
-        canTrade = false;
-        rejectReason = "Rejected: Slippage exceeds 3.00% ceiling";
-        riskScore = 75;
-      }
-
-      return {
-        canTrade,
-        attestationId: stringToBytes32(`att_${Date.now()}`),
-        riskScore,
-        rejectReason,
-        gasRoute: canTrade ? "Direct execution routed" : "Execution halted",
-      };
+      return this.offlineHeuristic(order);
     }
+  }
+
+  /**
+   * Pure off-chain heuristic evaluation with native BigInt precision.
+   * Used as a fallback when the on-chain node is unreachable or the policy
+   * vault has no policy configured for the requested asset.
+   */
+  private offlineHeuristic(order: OrderIntent): PactDecision {
+    const maxOrderCapUSD = 1500n;
+    const tradeAmount = typeof order.tradeAmountUSD === "bigint"
+      ? order.tradeAmountUSD
+      : BigInt(order.tradeAmountUSD);
+    const isMarketOpen = order.isMarketOpen ?? true;
+    const slippage = typeof order.estimatedSlippageBps === "bigint"
+      ? order.estimatedSlippageBps
+      : BigInt(order.estimatedSlippageBps ?? 150);
+
+    let canTrade = true;
+    let rejectReason = "Passed 5-Layer Risk Gate";
+    let riskScore = 15;
+
+    if (!isMarketOpen) {
+      canTrade = false;
+      rejectReason = "Rejected: US Equity Market is closed";
+      riskScore = 85;
+    } else if (tradeAmount > maxOrderCapUSD) {
+      canTrade = false;
+      rejectReason = "Rejected: Exceeds policy single-order cap ($1,500)";
+      riskScore = 80;
+    } else if (slippage > 300n) {
+      canTrade = false;
+      rejectReason = "Rejected: Slippage exceeds 3.00% ceiling";
+      riskScore = 75;
+    }
+
+    return {
+      canTrade,
+      attestationId: stringToBytes32(`att_${Date.now()}`),
+      riskScore,
+      rejectReason,
+      gasRoute: canTrade ? "Direct execution routed" : "Execution halted",
+    };
   }
 
   /**

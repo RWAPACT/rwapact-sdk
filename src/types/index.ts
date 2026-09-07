@@ -6,6 +6,8 @@ export interface SDKConfig {
   rpcUrl?: string;
   chainId?: number;
   privateKey?: Hash;
+  /** Optional EIP-1193 provider for browser wallet integration. */
+  provider?: EIP1193Provider;
   contracts?: {
     PactGate?: Address;
     KAR_AttestationRegistry?: Address;
@@ -14,6 +16,13 @@ export interface SDKConfig {
     KRO_RiskOracle?: Address;
     KGR_GasRouter?: Address;
   };
+}
+
+/**
+ * Minimal EIP-1193 provider interface for browser wallet integration.
+ */
+export interface EIP1193Provider {
+  request(args: { method: string; params?: unknown[] | object }): Promise<unknown>;
 }
 
 export interface OrderIntent {
